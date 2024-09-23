@@ -1,0 +1,23 @@
+<script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+<dotlottie-player src="https://lottie.host/81e7c178-35d9-4c17-82c8-b76768a02c04/FDxzpXMpQJ.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
+<div id="map" style="height: 800px;"></div>
+<div id="modal" style="z-index: 1000;">
+    <div id="modal-content"></div>
+    <button id="modal-close">Close</button>
+</div>
+<div id="table">
+    <div id="tableHeader">
+        <div>Sheet ID</div>
+        <div>Parcel ID</div>
+        <div>Current land use</div>
+        <div>Hectares</div>
+        <div>Land cover class code</div>
+        <div>Shape area</div>
+        <div>Shape perimeter</div>
+        <div>Crop</div>
+        <div>Created on</div>
+    </div>
+    <div id="tableBody"></div>
+</div>
+<script src="index.js"></script>
+<script>initMap("106464734", "Jack", "Howell")</script>
