@@ -4,23 +4,11 @@
     <div id="modal-content"></div>
     <button id="modal-close">Close</button>
 </div>
-<div id="table" style="display: none;">
-    <div id="tableHeader">
-        <div>Sheet ID</div>
-        <div>Parcel ID</div>
-        <div>Current land use</div>
-        <div>Hectares</div>
-        <div>Land cover class code</div>
-        <div>Shape area</div>
-        <div>Shape perimeter</div>
-        <div>Crop</div>
-        <div>Created on</div>
-    </div>
-    <div id="tableBody"></div>
-</div>
+
 <script src="main.js"></script>
 <script>
   const urlParams = new URLSearchParams(window.location.search);
   const sbiValue = urlParams.get('sbi');
-  initMap(sbiValue || "106464734", "", "");
+  const isWebflow = false;
+  initMap(sbiValue || "106464734", isWebflow);
 </script>

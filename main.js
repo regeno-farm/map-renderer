@@ -1,10 +1,11 @@
-function initMap(sbiNumber, firstName, lastName, email, geojson=undefined) {
+function initMap(sbiNumber, is_webflow) {
 
     let draw;
 
     // Load external scripts & stylesheets.
     // APS: I believe this is done here because the Webflow app
     // does not allow including these separately.
+    // TODO: Do proper asynchronous loading here.
     function loadScript(url) {
         const script = document.createElement('script');
         script.src = url;
@@ -227,7 +228,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson=undefined) {
     }
 
     // Main map management function.
-    function mapbox(geojson, drawings = undefined){
+    function drawMap(geojson, is_webflow, drawings=undefined){
         mapboxgl.accessToken = 'pk.eyJ1IjoicmVnZW5vLWZhcm0tdGVzdCIsImEiOiJjbHhhNmtyMnYxcDV6MmpzYzUyb3N4MWVzIn0.YYa6sVjYPHGAxpCxqPLdBg';
 
         const bounds = turf.bbox(geojson);
@@ -252,15 +253,14 @@ function initMap(sbiNumber, firstName, lastName, email, geojson=undefined) {
         });
 
         map.on('load', () => {
-
-            // Load data and update table.
             map.addSource('farm', {
                 type: 'geojson',
                 data: geojson
             });
-            updateTable(map)
+            if (is_webflow) {
+                updateTable(map);
+            }
 
-            // Attach layers to map.
             map.addLayer({
                 'id': 'farms',
                 'type': 'fill',
@@ -356,17 +356,21 @@ function initMap(sbiNumber, firstName, lastName, email, geojson=undefined) {
             });
 
             // Attach drawing functions to map.
-            draw = new MapboxDraw({
-                displayControlsDefault: false,
-                controls: {
-                    point: true,
-                    line_string: true,
-                    polygon: true,
-                    trash: true
-                }
-            });
-            map.addControl(draw);
+            if (is_webflow) {
+                draw = new MapboxDraw({
+                    displayControlsDefault: false,
+                    controls: {
+                        point: true,
+                        line_string: true,
+                        polygon: true,
+                        trash: true
+                    }
+                });
+                map.addControl(draw);
+            }
 
+            // TODO: Clarify the purpose of this, and if we
+            // want it in Glide.
             if (drawings) {
                 drawings.features.forEach(drawing => {
                     draw.add(drawing);
@@ -390,63 +394,65 @@ function initMap(sbiNumber, firstName, lastName, email, geojson=undefined) {
             }
 
             // Attach modal opening function to map.
-            map.on('click', (e) => {
+            if (is_webflow) {
+                map.on('click', (e) => {
 
-                let features = [];
+                    let features = [];
 
-                const clickPoint = {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [e.lngLat.lng, e.lngLat.lat]
-                    }
-                };
-
-                const drawFeatures = draw.getAll().features;
-                const tolerance = 0.02 //kilometres tolerance
-
-                drawFeatures.forEach(feature => {
-                    if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
-                        if (turf.booleanPointInPolygon(clickPoint, feature)) {
-                            features.push(feature);
+                    const clickPoint = {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [e.lngLat.lng, e.lngLat.lat]
                         }
-                    }
-                    else if (feature.geometry.type === 'LineString') {
-                        if (turf.nearestPointOnLine(feature, clickPoint).properties.dist <= tolerance) {
-                            features.push(feature);
-                        }
-                    }
-                    else if (feature.geometry.type === 'Point') {
-                        if (turf.distance(clickPoint, feature) <= tolerance) {
-                            features.push(feature);
-                        }
-                    }
-                });
+                    };
 
-                if (features.length > 0) {
-                    openModal(features[0], drawFeatures, map);
-                }
-                else {
-                    const bbox = [
-                        [e.point.x - 5, e.point.y - 5],
-                        [e.point.x + 5, e.point.y + 5]
-                    ];
+                    const drawFeatures = draw.getAll().features;
+                    const tolerance = 0.02 // kilometres tolerance
 
-                    features = map.queryRenderedFeatures(bbox, {
-                        layers: ['farms']
+                    drawFeatures.forEach(feature => {
+                        if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
+                            if (turf.booleanPointInPolygon(clickPoint, feature)) {
+                                features.push(feature);
+                            }
+                        }
+                        else if (feature.geometry.type === 'LineString') {
+                            if (turf.nearestPointOnLine(feature, clickPoint).properties.dist <= tolerance) {
+                                features.push(feature);
+                            }
+                        }
+                        else if (feature.geometry.type === 'Point') {
+                            if (turf.distance(clickPoint, feature) <= tolerance) {
+                                features.push(feature);
+                            }
+                        }
                     });
 
                     if (features.length > 0) {
-                        features.sort((a, b) => {
-                            if ('length' in a && 'length' in b) return 0;
-                            if ('length' in a) return -1;
-                            if ('length' in b) return 1;
-                            return 0;
-                        });
-                        openModal(features[0], geojson, map);
+                        openModal(features[0], drawFeatures, map);
                     }
-                }
-            });
+                    else {
+                        const bbox = [
+                            [e.point.x - 5, e.point.y - 5],
+                            [e.point.x + 5, e.point.y + 5]
+                        ];
+
+                        features = map.queryRenderedFeatures(bbox, {
+                            layers: ['farms']
+                        });
+
+                        if (features.length > 0) {
+                            features.sort((a, b) => {
+                                if ('length' in a && 'length' in b) return 0;
+                                if ('length' in a) return -1;
+                                if ('length' in b) return 1;
+                                return 0;
+                            });
+                            openModal(features[0], geojson, map);
+                        }
+                    }
+                });
+            }
 
             setInterval(function() {
                 map.resize();
@@ -478,33 +484,40 @@ function initMap(sbiNumber, firstName, lastName, email, geojson=undefined) {
     }
 
     // Main script thread starts.
-    async function getGeoJSON(sbiNumber, firstName, lastName, email) {
+    async function getGeoJSON(sbiNumber, is_webflow) {
         let geojson;
 
-        try {
-            memberstackData = await window.$memberstackDom.getMemberJSON();
-            if (memberstackData.data.hasOwnProperty('features')) {
-                geojson = memberstackData.data;
+        if (is_webflow) {
+            // Try retrieving data from MemberStack.
+            try {
+                memberstackData = await window.$memberstackDom.getMemberJSON();
+                if (memberstackData.data.hasOwnProperty('features')) {
+                    geojson = memberstackData.data;
+                }
+            } catch (error) {
+                console.warn("Couldn't fetch geojson from MemberStack:", error);
             }
-        } catch (error) {
-            console.warn("Couldn't fetch geojson from MemberStack:", error);
         }
 
         if (!geojson) {
             let sbi = sbiNumber;
             if (!sbi) {
-                try {
-                    const memberstackSBI = await window.$memberstackDom.getCurrentMember()
-                    sbi = memberstackSBI.data.customFields.sbi
-                } catch (e){
-                    console.warn("No existing SBI in MemberStack")
+                if (is_webflow) {
+                    try {f
+                        const memberstackSBI = await window.$memberstackDom.getCurrentMember()
+                        sbi = memberstackSBI.data.customFields.sbi
+                    } catch (e){
+                        console.warn("No existing SBI in MemberStack")
+                    }
+                } else {
+                    // TODO - handle farms with no SBIs gracefully.
                 }
             }
             try {
                 const sbis = sbi.split(", ");
-                geojsonMerged = {}
+                geojsonMerged = {};
                 for (const sbi1 of sbis) {
-                    const response = await fetch(`https://eu-west-1.aws.data.mongodb-api.com/app/application-0-npilpbx/endpoint/rpadata?SBI=${sbi1}&first=${firstName}&last=${lastName}&email=${email}`);
+                    const response = await fetch(`https://eu-west-1.aws.data.mongodb-api.com/app/application-0-npilpbx/endpoint/rpadata?SBI=${sbi1}&first=&last=&email=`);
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
@@ -516,27 +529,29 @@ function initMap(sbiNumber, firstName, lastName, email, geojson=undefined) {
                     }
                 }
 
-                // Save merged GeoJSON to MemberStack.
                 geojson.features = geojsonMerged.features.filter(feature => feature.properties.AREA_HA > 0.1);
-                try {
-                    await window.$memberstackDom.updateMemberJSON({json: geojson})
-                } catch (error) {
-                    console.warn("Couldn't send geojson to Memberstack:", error);
+
+                if (is_webflow) {
+                    // Save merged GeoJSON to MemberStack.
+                    try {
+                        await window.$memberstackDom.updateMemberJSON({json: geojson})
+                    } catch (error) {
+                        console.warn("Couldn't send geojson to MemberStack:", error);
+                    }
+                    // Save total hectares to a MemberStack custom field.
+                    try {
+                        const customFields = {
+                            'total-hectares': geojsonMerged["total_ha"]
+                        };
+                        // Update current member's custom fields
+                        await window.$memberstackDom.updateMember({
+                            customFields
+                        });
+                    } catch (error) {
+                        console.warn("Couldn't save total hectares to MemberStack:", error);
+                    }
                 }
 
-                // Save total hectares to a MemberStack custom field.
-                try {
-                    const customFields = {
-                        'total-hectares': geojsonMerged["total_ha"]
-                    };
-
-                    // Update current member's custom fields
-                    await window.$memberstackDom.updateMember({
-                        customFields
-                    });
-                } catch (error) {
-                    console.warn("Couldn't save total hectares to Memberstack:", error);
-                }
             } catch (error) {
                 alert("No data found for this SBI number. Please try again.")
                 console.error('There was a problem with the fetch operation:', error);
@@ -558,14 +573,13 @@ function initMap(sbiNumber, firstName, lastName, email, geojson=undefined) {
                     ...geojson,
                     features: drawings
                 };
-
-                mapbox(mapGeojson, drawingGeojson);
+                drawMap(mapGeojson, is_webflow, drawingGeojson);
             }
             else {
-                mapbox(mapGeojson);
+                drawMap(mapGeojson, is_webflow);
             }
         }
     }
 
-    getGeoJSON(sbiNumber, firstName, lastName, email);
+    getGeoJSON(sbiNumber, is_webflow);
 }
