@@ -1,5 +1,15 @@
-body { margin: 0; padding: 0; }
-#map { top: 0; bottom: 0; width: 100vw; height: 100vh;}
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#map {
+    top: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
 dotlottie-player {
     position: absolute;
     top: 50%;
@@ -8,16 +18,19 @@ dotlottie-player {
     width: 100px;
     height: 100px;
 }
+
 #table {
     border:1px solid #414141;
     margin:20px;
     border-collapse:collapse;
     float:left;
 }
+
 #tableHeader {
     background-color:#414141;
     color:white;
 }
+
 #tableHeader > div {
     width:148px;
     display: inline-block;

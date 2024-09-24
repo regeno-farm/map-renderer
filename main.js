@@ -2,7 +2,9 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
 
     let draw
 
-    //Load external scripts & stylesheets
+    // Load external scripts & stylesheets.
+    // APS: I believe this is done here because the Webflow app
+    // does not allow including these separately.
     function loadScript(url) {
         const script = document.createElement('script');
         script.src = url;
@@ -16,14 +18,13 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
         document.head.appendChild(link);
     }
 
-    //Mapbox & relevant styles/plugins
     loadStylesheet('https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css');
     loadScript('https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js');
     loadScript('https://unpkg.com/@turf/turf@6/turf.min.js');
     loadStylesheet('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css');
     loadScript('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js');
 
-    //Utility - Converts map date string to something readable
+    // Utility - converts map date string to something readable.
     function convertDate(dateString) {
         if (dateString !== "" && dateString !== undefined) {
             const year = dateString.substring(0, 4);
@@ -34,10 +35,8 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
         else return dateString
     }
 
-    //Pushes a feature update back to the map
+    // Pushes a feature update back to the map.
     async function updateFeatures(map, updatedFeature, isDrawing) {
-        // console.log("Drawing: ", isDrawing)
-        // console.log("Update function: ", updatedFeature)
         const source = isDrawing ? draw.getAll() : map.getSource('farm')._data
 
         const features = source.features.map(f => ((f.properties.ID === updatedFeature.properties.ID && f.properties.ID !== undefined) || (f.id === updatedFeature.id && f.id !== undefined)) ? {
@@ -66,7 +65,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
         updateTable(map)
     }
 
-    //Updates the table with the latest map data
+    // Updates the table with the latest map data.
     function updateTable(map) {
         const source = map.getSource('farm')._data;
         const features = source.features.sort((a, b) => {
@@ -110,8 +109,8 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
         });
     }
 
-    //Matches a form submission to a map feature and pushes a feature update
-
+    // Matches a form submission to a map feature and pushes a
+    // feature update.
     function handleSubmit(map, formData) {
         let isDrawing = false
 
@@ -119,7 +118,6 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
         formData.forEach((value, key) => {
             data[key] = value;
         });
-        // console.log("Form submitted: ", data)
         let originalFeature
 
         originalFeature = map.queryRenderedFeatures({
@@ -128,7 +126,6 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
         })[0];
 
         if (!originalFeature) {
-            console.log("Drawn features full: ", draw.getAll().features)
             originalFeature = draw.getAll().features.find(feature => {
                 if (feature.id === data.ID) {
                     isDrawing = true
@@ -136,8 +133,6 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                 }
             });
         }
-
-        // console.log("Feature to update: ", originalFeature)
 
         const updatedFeature = {
             ...originalFeature,
@@ -147,11 +142,10 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
             }
         };
 
-        // console.log("Updated feature: ", originalFeature)
         updateFeatures(map, updatedFeature, isDrawing)
     }
 
-    //Opens a modal to edit a map feature
+    // Opens a modal to edit a map feature.
     function openModal(feature, source, map) {
         const modal = document.getElementById('modal');
         const modalContent = document.getElementById('modal-content');
@@ -220,7 +214,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
             }, 300);
         };
 
-        //Handles form submissions
+        // Handles form submissions.
         const modalForm = document.getElementById('modal-form');
         modalForm.addEventListener('submit', function (event) {
             event.preventDefault();
@@ -232,7 +226,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
         });
     }
 
-    //Main map management function
+    // Main map management function.
     function mapbox(geojson, drawings = undefined){
         mapboxgl.accessToken = 'pk.eyJ1IjoicmVnZW5vLWZhcm0tdGVzdCIsImEiOiJjbHhhNmtyMnYxcDV6MmpzYzUyb3N4MWVzIn0.YYa6sVjYPHGAxpCxqPLdBg';
 
@@ -265,7 +259,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
             });
             updateTable(map)
 
-            //Attach layers to map
+            // Attach layers to map.
             map.addLayer({
                 'id': 'farms',
                 'type': 'fill',
@@ -394,7 +388,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                 }
             }
 
-            //Attach modal opening function to map
+            // Attach modal opening function to map.
             map.on('click', (e) => {
 
                 let features = [];
@@ -426,13 +420,9 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                             features.push(feature);
                         }
                     }
-                    else {
-                        // console.log(feature.geometry.type)
-                    }
                 });
 
                 if (features.length > 0) {
-                    // console.log("Clicked features: ", features)
                     openModal(features[0], drawFeatures, map);
                 }
                 else {
@@ -446,7 +436,6 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                     });
 
                     if (features.length > 0) {
-                        // console.log("Clicked features: ", features)
                         features.sort((a, b) => {
                             if ('length' in a && 'length' in b) return 0;
                             if ('length' in a) return -1;
@@ -462,7 +451,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                 map.resize();
             }, 1000);
 
-            //Update memberstack with merged drawings and map data
+            // Update MemberStack with merged drawings and map data.
             window.saveGeojson = async function() {
                 let coreFeatures = map.getSource('farm')._data;
                 coreFeatures.features.forEach(feature => {
@@ -487,7 +476,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
         });
     }
 
-    //Main script thread starts
+    // Main script thread starts.
     async function getGeoJSON(sbiNumber, firstName, lastName, email) {
         let geojson;
 
@@ -525,18 +514,16 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                         geojsonMerged.features.push(...geojson.features)
                     }
                 }
-                // console.log(geojsonMerged.features.length)
 
-                // save merged geoJSON to memberstack
+                // Save merged GeoJSON to MemberStack.
                 geojson.features = geojsonMerged.features.filter(feature => feature.properties.AREA_HA > 0.1);
-                // console.log(geojsonMerged.features.length)
                 try {
                     await window.$memberstackDom.updateMemberJSON({json: geojson})
                 } catch (error) {
                     console.warn("Couldn't send geojson to Memberstack:", error);
                 }
                 
-                //save total hectares to a memberstack custom field
+                // Save total hectares to a MemberStack custom field.
                 try {
                     const customFields = { 
                         'total-hectares': geojsonMerged["total_ha"]
@@ -557,7 +544,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
 
         if (geojson) {
 
-            //Split out incoming drawings and map data
+            // Split out incoming drawings and map data.
             const mapData = geojson.features.filter(feature => feature.properties.collection !== 'drawings');
             const drawings = geojson.features.filter(feature => feature.properties.collection === 'drawings');
 
@@ -579,5 +566,5 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
         }
     }
 
-    getGeoJSON(sbiNumber, firstName, lastName, email)
+    getGeoJSON(sbiNumber, firstName, lastName, email);
 }
