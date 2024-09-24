@@ -238,11 +238,12 @@ function initMap(sbiNumber, firstName, lastName, email, geojson=undefined) {
             style: 'mapbox://styles/mapbox/light-v11',
             projection: 'globe',
             zoom: 13,
+            minZoom: 6,
             center: center.geometry.coordinates
         });
 
         map.fitBounds(bounds, {
-            padding: 20 // Adjust padding as needed
+            padding: 20
         });
 
         map.loadImage('https://uploads-ssl.webflow.com/660bcbc48b7009afef8be06d/6669cc4fa365d2efac2b2463_check-circle.png', (error, image) => {
