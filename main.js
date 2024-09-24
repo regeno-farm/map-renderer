@@ -227,6 +227,30 @@ function initMap(sbiNumber, is_webflow) {
             map.addImage('checkbox-image', image);
         });
 
+        const landCoverColors = [
+          ['Arable Land', '#F7E16B'],
+          ['Permanent Grassland', '#97E374'],
+          ['Woodland', '#508936'],
+          ['Scrub - Ungrazeable', '#E9E9E9'],
+          ['Pond', '#5CC7E7'],
+          ['Farmyards', '#DC772F'],
+          ['Farm Building', '#DC772F'],
+          ['Metalled track', '#B7B7B7'],
+          ['Track - Natural Surface', '#CD9D55'],
+          ['Residential dwelling, House', '#DC772F']
+        ];
+        const defaultColor = '#4c9370';
+        const legendColors = [
+          ['Arable land', '#F7E16B'],
+          ['Permanent grassland', '#97E374'],
+          ['Woodland', '#508936'],
+          ['Scrub - ungrazeable', '#E9E9E9'],
+          ['Pond', '#5CC7E7'],
+          ['Farmyards / buildings / houses', '#DC772F'],
+          ['Track - metalled', '#B7B7B7'],
+          ['Track - natural', '#CD9D55'],
+        ];
+
         map.on('load', () => {
             map.addSource('farm', {
                 type: 'geojson',
@@ -247,17 +271,8 @@ function initMap(sbiNumber, is_webflow) {
                         ['has', 'CROP'], '#31A56C',
                         ['match',
                             ['get', 'DESCRIPTION'],
-                            'Arable Land', '#F7E16B',
-                            'Permanent Grassland', '#97E374',
-                            'Woodland', '#508936',
-                            'Scrub - Ungrazeable', '#E9E9E9',
-                            'Pond', "#5CC7E7",
-                            'Farmyards', '#DC772F',
-                            'Farm Building', '#DC772F',
-                            'Metalled track', '#B7B7B7',
-                            'Track - Natural Surface', '#CD9D55',
-                            'Residential dwelling, House', "#DC772F",
-                            '#4c9370'
+                            ...landCoverColors.flat(),
+                            defaultColor
                         ]
                     ],
                     'fill-opacity': [
@@ -283,17 +298,8 @@ function initMap(sbiNumber, is_webflow) {
                         ['has', 'CROP'], '#BADDCB',
                         ['match',
                             ['get', 'DESCRIPTION'],
-                            'Arable Land', '#F7E16B',
-                            'Permanent Grassland', '#97E374',
-                            'Woodland', '#508936',
-                            'Scrub - Ungrazeable', '#E9E9E9',
-                            'Pond', "#5CC7E7",
-                            'Farmyards', '#DC772F',
-                            'Farm Building', '#DC772F',
-                            'Metalled track', '#B7B7B7',
-                            'Track - Natural Surface', '#CD9D55',
-                            'Residential dwelling, House', "#DC772F",
-                            '#4c9370'
+                            ...landCoverColors.flat(),
+                            defaultColor
                         ]
                     ],
                     'line-width': 3
@@ -314,7 +320,23 @@ function initMap(sbiNumber, is_webflow) {
                 'filter': ['has', 'CROP']
             });
 
-            // Attach basic popup to display land use on map.
+            function addLegendToMap(map) {
+                const legendContent = document.getElementById('legend-content');
+                const legendItems = legendColors.map(([label, color]) => ({ color, label }));
+                legendItems.forEach(item => {
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item';
+                    legendItem.innerHTML = `
+                      <div class="legend-color" style="background-color: ${item.color};"></div>
+                      <span>${item.label}</span>
+                    `;
+                    legendContent.appendChild(legendItem);
+                });
+                const legend = document.getElementById('map-legend');
+                legend.style.display = 'block';
+            }
+            addLegendToMap(map);
+
             map.on('click', 'farms', (e) => {
                 new mapboxgl.Popup()
                     .setLngLat(e.lngLat)
