@@ -364,7 +364,7 @@ function initMap(sbiNumber, is_webflow) {
                     const rounded_area = Math.round(area * 100) / 100;
                 } else {
                     if (e.type !== 'draw.delete')
-                        alert('Click the map to draw a polygon.');
+                        window.alert('Click the map to draw a polygon.');
                 }
             }
 
@@ -435,7 +435,7 @@ function initMap(sbiNumber, is_webflow) {
 
             // Update MemberStack with merged drawings and map data.
             window.saveGeojson = async function() {
-                let coreFeatures = map.getSource('farm')._data;
+                const coreFeatures = map.getSource('farm')._data;
                 coreFeatures.features.forEach(feature => {
                     feature.properties.collection = 'map';
                 });
@@ -465,7 +465,7 @@ function initMap(sbiNumber, is_webflow) {
         if (is_webflow) {
             // Try retrieving data from MemberStack.
             try {
-                memberstackData = await window.$memberstackDom.getMemberJSON();
+                let memberstackData = await window.$memberstackDom.getMemberJSON();
                 if (memberstackData.data.hasOwnProperty('features')) {
                     geojson = memberstackData.data;
                 }
@@ -490,7 +490,7 @@ function initMap(sbiNumber, is_webflow) {
             }
             try {
                 const sbis = sbi.split(", ");
-                geojsonMerged = {};
+                let geojsonMerged = {};
                 for (const sbi1 of sbis) {
                     const response = await fetch(`https://eu-west-1.aws.data.mongodb-api.com/app/application-0-npilpbx/endpoint/rpadata?SBI=${sbi1}&first=&last=&email=`);
                     if (!response.ok) {
@@ -527,7 +527,7 @@ function initMap(sbiNumber, is_webflow) {
                 }
 
             } catch (error) {
-                alert("No data found for this SBI number. Please try again.")
+                window.alert("No data found for this SBI number. Please try again.")
                 console.error('There was a problem with the fetch operation:', error);
             }
         }
