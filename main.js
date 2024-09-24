@@ -1,30 +1,5 @@
 function initMap(sbiNumber, is_webflow) {
 
-    let draw;
-
-    // Load external scripts & stylesheets.
-    // APS: I believe this is done here because the Webflow app
-    // does not allow including these separately.
-    // TODO: Do proper asynchronous loading here.
-    function loadScript(url) {
-        const script = document.createElement('script');
-        script.src = url;
-        document.head.appendChild(script);
-    }
-
-    function loadStylesheet(url) {
-        var link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = url;
-        document.head.appendChild(link);
-    }
-
-    loadStylesheet('https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css');
-    loadScript('https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js');
-    loadScript('https://unpkg.com/@turf/turf@6/turf.min.js');
-    loadStylesheet('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css');
-    loadScript('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js');
-
     // Utility - converts map date string to something readable.
     function convertDate(dateString) {
         if (dateString !== "" && dateString !== undefined) {
@@ -528,7 +503,6 @@ function initMap(sbiNumber, is_webflow) {
                         geojsonMerged.features.push(...geojson.features)
                     }
                 }
-
                 geojson.features = geojsonMerged.features.filter(feature => feature.properties.AREA_HA > 0.1);
 
                 if (is_webflow) {
@@ -581,5 +555,41 @@ function initMap(sbiNumber, is_webflow) {
         }
     }
 
-    getGeoJSON(sbiNumber, is_webflow);
+    let draw;
+    const resources = [
+        { type: 'style', url: 'https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css' },
+        { type: 'script', url: 'https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js' },
+        { type: 'script', url: 'https://unpkg.com/@turf/turf@6/turf.min.js' },
+        { type: 'style', url: 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css' },
+        { type: 'script', url: 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js' }
+    ];
+
+    function loadResource(resource) {
+        return new Promise((resolve, reject) => {
+            let element;
+            if (resource.type === 'script') {
+                element = document.createElement('script');
+                element.src = resource.url;
+            } else if (resource.type === 'style') {
+                element = document.createElement('link');
+                element.rel = 'stylesheet';
+                element.href = resource.url;
+            }
+            element.onload = resolve;
+            element.onerror = reject;
+            document.head.appendChild(element);
+        });
+    }
+
+    function loadAllResources() {
+        return Promise.all(resources.map(loadResource));
+    }
+
+    loadAllResources()
+        .then(() => {
+            getGeoJSON(sbiNumber, is_webflow);
+        })
+        .catch(error => {
+            console.error('Error loading resources:', error);
+        });
 }
