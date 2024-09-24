@@ -1,14 +1,25 @@
-<!-- Map as used in Glide -->
-<div id="map" style="height: 100%;"></div>
-<div id="modal" style="z-index: 1000; display: none;">
-    <div id="modal-content"></div>
-    <button id="modal-close">Close</button>
-</div>
-
-<script src="main.js"></script>
-<script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const sbiValue = urlParams.get('sbi');
-  const isWebflow = false;
-  initMap(sbiValue || "106464734", isWebflow);
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='styles.css' rel='stylesheet' />
+</head>
+<body class="glide">
+    <!-- Map as used in Glide -->
+    <div id="map">
+        <div id="map-legend" class="map-overlay">
+            <h3>Land cover type</h3>
+            <div id="legend-content"></div>
+        </div>
+    </div>
+    <div id="no-map">Add your farm's SBI number to view the map</div>
+    <script src="main.js"></script>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const sbiValue = urlParams.get('sbi');
+      const isWebflow = false;
+      initMap(sbiValue, isWebflow);
+    </script>
+</body>
+</html>

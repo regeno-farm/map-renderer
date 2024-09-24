@@ -555,41 +555,49 @@ function initMap(sbiNumber, is_webflow) {
         }
     }
 
-    let draw;
-    const resources = [
-        { type: 'style', url: 'https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css' },
-        { type: 'script', url: 'https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js' },
-        { type: 'script', url: 'https://unpkg.com/@turf/turf@6/turf.min.js' },
-        { type: 'style', url: 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css' },
-        { type: 'script', url: 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js' }
-    ];
+    if (sbiNumber !== null) {
+        let draw;
+        const resources = [
+            { type: 'style', url: 'https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css' },
+            { type: 'script', url: 'https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js' },
+            { type: 'script', url: 'https://unpkg.com/@turf/turf@6/turf.min.js' },
+            { type: 'style', url: 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css' },
+            { type: 'script', url: 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js' }
+        ];
 
-    function loadResource(resource) {
-        return new Promise((resolve, reject) => {
-            let element;
-            if (resource.type === 'script') {
-                element = document.createElement('script');
-                element.src = resource.url;
-            } else if (resource.type === 'style') {
-                element = document.createElement('link');
-                element.rel = 'stylesheet';
-                element.href = resource.url;
-            }
-            element.onload = resolve;
-            element.onerror = reject;
-            document.head.appendChild(element);
-        });
+        function loadResource(resource) {
+            return new Promise((resolve, reject) => {
+                let element;
+                if (resource.type === 'script') {
+                    element = document.createElement('script');
+                    element.src = resource.url;
+                } else if (resource.type === 'style') {
+                    element = document.createElement('link');
+                    element.rel = 'stylesheet';
+                    element.href = resource.url;
+                }
+                element.onload = resolve;
+                element.onerror = reject;
+                document.head.appendChild(element);
+            });
+        }
+
+        function loadAllResources() {
+            return Promise.all(resources.map(loadResource));
+        }
+
+        loadAllResources()
+            .then(() => {
+                getGeoJSON(sbiNumber, is_webflow);
+            })
+            .catch(error => {
+                console.error('Error loading resources:', error);
+            });
+    } else {
+        let map = document.getElementById('map');
+        map.style.display = 'none';
+        let mapWarning = document.getElementById('no-map');
+        mapWarning.style.display = 'flex';
     }
 
-    function loadAllResources() {
-        return Promise.all(resources.map(loadResource));
-    }
-
-    loadAllResources()
-        .then(() => {
-            getGeoJSON(sbiNumber, is_webflow);
-        })
-        .catch(error => {
-            console.error('Error loading resources:', error);
-        });
 }

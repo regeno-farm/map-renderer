@@ -1,15 +1,117 @@
-body {
+html, body {
+    height: 100%;
     margin: 0;
     padding: 0;
 }
 
-#map {
-    top: 0;
-    bottom: 0;
-    width: 100vw;
-    height: 100vh;
+body.glide {
+    display: flex;
+    flex-direction: column;
 }
 
+body.glide #map {
+    flex: 1;
+    width: 100%;
+    position: relative;
+}
+
+body.webflow #map {
+    width: 100%;
+    height: 800px;
+    position: relative;
+}
+
+#no-map {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2em;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #d6d6d6;
+}
+
+/* Legend */
+.map-overlay {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 3px;
+    padding: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    z-index: 1;
+    display: none;
+}
+.map-overlay h3 {
+    margin: 0 0 10px;
+    font-size: 16px;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.legend-color {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    border: 1px solid #000;
+}
+
+/* Popup */
+.mapboxgl-popup-content {
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+  font-family: Arial, sans-serif;
+}
+
+.popup-title {
+  margin: 0 0 15px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  border-bottom: 2px solid #4CAF50;
+  padding-bottom: 8px;
+}
+
+.popup-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  margin: 10px 0 5px;
+}
+
+.popup-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.popup-list-item {
+  background-color: #f0f0f0;
+  padding: 10px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+}
+
+.popup-list-item span {
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+/* Webflow-specific styles */
 dotlottie-player {
     position: absolute;
     top: 50%;
@@ -18,19 +120,16 @@ dotlottie-player {
     width: 100px;
     height: 100px;
 }
-
 #table {
-    border:1px solid #414141;
-    margin:20px;
-    border-collapse:collapse;
-    float:left;
+    border: 1px solid #414141;
+    margin: 20px;
+    border-collapse: collapse;
+    float: left;
 }
-
 #tableHeader {
-    background-color:#414141;
-    color:white;
+    background-color: #414141;
+    color: white;
 }
-
 #tableHeader > div {
     width:148px;
     display: inline-block;
