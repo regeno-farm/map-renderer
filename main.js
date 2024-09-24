@@ -1,6 +1,6 @@
-function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
+function initMap(sbiNumber, firstName, lastName, email, geojson=undefined) {
 
-    let draw
+    let draw;
 
     // Load external scripts & stylesheets.
     // APS: I believe this is done here because the Webflow app
@@ -252,7 +252,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
 
         map.on('load', () => {
 
-            //Load data and update table
+            // Load data and update table.
             map.addSource('farm', {
                 type: 'geojson',
                 data: geojson
@@ -338,7 +338,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                 'filter': ['has', 'CROP']
             });
 
-            //Attach basic popup to display land use on map
+            // Attach basic popup to display land use on map.
             map.on('click', 'farms', (e) => {
                 new mapboxgl.Popup()
                     .setLngLat(e.lngLat)
@@ -354,7 +354,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                 map.getCanvas().style.cursor = '';
             });
 
-            //Attach drawing functions to map
+            // Attach drawing functions to map.
             draw = new MapboxDraw({
                 displayControlsDefault: false,
                 controls: {
@@ -486,7 +486,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                 geojson = memberstackData.data;
             }
         } catch (error) {
-            console.warn("Couldn't fetch geojson from Memberstack:", error);
+            console.warn("Couldn't fetch geojson from MemberStack:", error);
         }
 
         if (!geojson) {
@@ -496,7 +496,7 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                     const memberstackSBI = await window.$memberstackDom.getCurrentMember()
                     sbi = memberstackSBI.data.customFields.sbi
                 } catch (e){
-                    console.warn("No existing SBI in memberstack")
+                    console.warn("No existing SBI in MemberStack")
                 }
             }
             try {
@@ -522,16 +522,16 @@ function initMap(sbiNumber, firstName, lastName, email, geojson = undefined ) {
                 } catch (error) {
                     console.warn("Couldn't send geojson to Memberstack:", error);
                 }
-                
+
                 // Save total hectares to a MemberStack custom field.
                 try {
-                    const customFields = { 
+                    const customFields = {
                         'total-hectares': geojsonMerged["total_ha"]
-                    }; 
-                    
-                    // Update current member's custom fields 
-                    await window.$memberstackDom.updateMember({ 
-                        customFields 
+                    };
+
+                    // Update current member's custom fields
+                    await window.$memberstackDom.updateMember({
+                        customFields
                     });
                 } catch (error) {
                     console.warn("Couldn't save total hectares to Memberstack:", error);
