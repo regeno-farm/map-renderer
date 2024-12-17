@@ -30,7 +30,11 @@
               },
                 
               autostart: false
-            });
+            }).then(() => {
+              window.voiceflow.chat.proactive.clear(); // clear all previous messages
+            );
+
+              
           }
           v.src = "https://cdn.voiceflow.com/widget/bundle.mjs"; 
           v.type = "text/javascript"; 
