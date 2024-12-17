@@ -7,8 +7,7 @@
     <script type="text/javascript">    
       (function(d, t) {
           var params = new URLSearchParams(document.location.search);
-          var s = params.get("sbi");
-          console.info(s); //show C
+          var sbi = params.get("sbi");
           
           var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
           v.onload = function() {
@@ -21,6 +20,15 @@
               	mode: 'embedded',
               	target: document.getElementById('flat-chat'),
               },
+              launch: {
+                event: {
+                  type: "launch",
+                  payload: {
+                    sbi: sbi
+                  }
+                }
+              }
+                
               autostart: false
             });
           }
