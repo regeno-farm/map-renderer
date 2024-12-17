@@ -6,8 +6,8 @@
     <link href='styles.css' rel='stylesheet' />
     <script type="text/javascript">    
       (function(d, t) {
-          const params = new URLSearchParams(document.location.search);
-          const s = params.get("sbi");
+          var params = new URLSearchParams(document.location.search);
+          var s = params.get("sbi");
           console.info(s); //show C
           
           var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
